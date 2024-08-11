@@ -17,8 +17,8 @@ const transport = require('./helpers/mailer');
 
 enviarMail = async () => {
     const result = await transport.sendMail({
-        from : '"Maddison Foo Koch 👻" <agustin.fassola98@gmail.com>',
-        to :'agusfassolacarp@gmail.com',
+        from : '"Agustin Fassola" <agustin.fassola98@gmail.com>',
+        to :'agustin.fassola98@gmail.com',
         subject : 'Correo de prueba',
         text : 'Correo desde node.js'
     });
