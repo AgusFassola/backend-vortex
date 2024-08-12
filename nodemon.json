@@ -1,0 +1,8 @@
+{
+    "env":{
+        "DB_USER": "agusfassola",
+        "DB_PASSWORD": "antesydespues",
+        "DB_NAME": "vortex",
+        "JWT_KEY":"supersecret_dont_share"
+    }
+}
