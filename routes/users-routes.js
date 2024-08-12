@@ -5,7 +5,7 @@ const userController = require('../controllers/user-controller');
 const router = express.Router();
 
 //obtener todos los usuarios(solo admin)
-router.post('/', userController.getUsers);
+router.get('/', userController.getUsers);
 
 //registrar un nuevo usuario(solo admin)
 router.post(
