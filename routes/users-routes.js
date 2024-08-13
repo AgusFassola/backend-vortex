@@ -9,11 +9,11 @@ router.get('/', userController.getUsers);
 
 //registrar un nuevo usuario(solo admin)
 router.post(
-    '/singup',
+    '/signup',
     [
-        check('name').not().isEmpty(),
+        check('username').not().isEmpty(),
         check('email').normalizeEmail().isEmail(),
-        check('password').isLength({ min: 4 })
+        check('password').isLength({ min: 3 })
     ],
     userController.signup
 );

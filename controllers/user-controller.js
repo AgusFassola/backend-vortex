@@ -32,10 +32,11 @@ const signup = async (req, res, next) => {
             'Datos ingresados incorrectos',
             422//errores de semántica
         )
+        console.log(errors,"req.body",req.body);
         return next(error);
     }
 
-    const { name, email, password, role } = req.body;
+    const { username, email, password, role } = req.body;
     let existingUser;
 
     try{
@@ -70,7 +71,7 @@ const signup = async (req, res, next) => {
     }
 
     const createdUser = new User({
-        name,
+        username,
         email,
         password: hashedPassword,
         role//asigna el rol
@@ -128,8 +129,9 @@ const login = async (req, res, next) => {
     }
 
     if (!existingUser) {
+        console.log("existe?",existingUser)
         const error = new HttpError(
-            'Credenciales incorrectas',
+            'Usuario incorrecto',
              403//no posee permisos
         );
         return next(error);
@@ -149,7 +151,7 @@ const login = async (req, res, next) => {
 
     if (!isValidPassword) {
         const error = new HttpError(
-            'Credenciales incorrectas', 
+            'Contraseña incorrecta', 
             403
         );
         return next(error);

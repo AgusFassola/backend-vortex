@@ -35,14 +35,13 @@ app.use((error, req, res, next) => {
 });
 
 
-const url = 'mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.q0ebaqb.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority&appName=Cluster0'
+const url = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.q0ebaqb.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority&appName=Cluster0`
 mongoose.connect(url) 
 .then(() => {
     console.log('conexion correcta');
     app.listen(5000);
     
 }).catch((error) => {
-    console.log(process.env.DB_USER,process.env.DB_PASSWORD,process.env.DB_NAME)
     console.log('falló la conexión!',error);
 });
 
