@@ -6,6 +6,11 @@ const employeeSchema = new Schema({
         type: String,
         required: true,
     },
+    email:{
+        type: String,
+        required: true,
+        unique:true,
+    },
     position:{
         type: String,
         required: true,
@@ -13,7 +18,11 @@ const employeeSchema = new Schema({
     salary:{
         type: Number,
         required: true,
-    }
+    },
+    address:{
+        type: String,
+        required: true,
+    },
 },{
     timestamps: true
 });

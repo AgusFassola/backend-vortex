@@ -20,7 +20,7 @@ const userSchema = new Schema({
         type: String,
         required: true,
         enum: ['admin', 'user'],//solo permite estos valores
-        default: 'user'
+        default: 'user'//por defecto es tipo user
     }
 },{
     timestamps: true

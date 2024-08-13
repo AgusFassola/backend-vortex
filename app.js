@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const usersRoutes = require('./routes/users-routes');
+const employeesRoutes = require('./routes/employees-routes');
 
 const fs = require('fs');
 const path = require('path');
@@ -12,6 +13,7 @@ const app = express();
 app.use(bodyParser.json());
 
 app.use('/api/users', usersRoutes );
+app.use('/api/employees', employeesRoutes );
 
 //Error para rutas no encontradas
 app.use((req, res, next) => {

@@ -106,6 +106,7 @@ const signup = async (req, res, next) => {
         return next(error);
     }
 
+    //201 solicitud con exito
     res.status(201).json({
         userId:createdUser.id,
         email: createdUser.email,
