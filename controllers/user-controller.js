@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 
 const HttpError = require('../models/http-error');
 const User = require('../models/user');
+const transport = require('../helpers/mailer');
 
 //para obtener todos los usuarios(solo puede el admin)
 const getUsers = async (req, res, next) => {
@@ -27,12 +28,11 @@ const signup = async (req, res, next) => {
 
     const errors = validationResult(req);
 
-    if(!errors.isEmpty()){
+    if(!errors.isEmpty()){ //hay errores
         const error = new HttpError(
             'Datos ingresados incorrectos',
             422//errores de semántica
         )
-        console.log(errors,"req.body",req.body);
         return next(error);
     }
 
@@ -58,6 +58,7 @@ const signup = async (req, res, next) => {
         return next(error);
     }
 
+    //encriptar la contraseña antes de guardarla
     let hashedPassword;
     try{
         hashedPassword = await bcrypt.hash(password, 12);
@@ -74,7 +75,7 @@ const signup = async (req, res, next) => {
         username,
         email,
         password: hashedPassword,
-        role//asigna el rol
+        role//por defecto es user
     });
     try{
         await createdUser.save();
@@ -87,30 +88,10 @@ const signup = async (req, res, next) => {
         return next(error);
     }
 
-    let token;
-    try{
-        token = jwt.sign(
-            {
-                userId:createdUser.id,
-                email: createdUser.email
-            },
-            process.env.JWT_KEY,
-            { expiresIn: '1h'}
-        );
-    }catch(err){
-        const error = new HttpError(
-            'Error al autenticar',
-            500//Internal server error
-        )
-        console.log(err);
-        return next(error);
-    }
-
     //201 solicitud con exito
     res.status(201).json({
         userId:createdUser.id,
-        email: createdUser.email,
-        token: token
+        email: createdUser.email
     });
 };
 
@@ -130,7 +111,6 @@ const login = async (req, res, next) => {
     }
 
     if (!existingUser) {
-        console.log("existe?",existingUser)
         const error = new HttpError(
             'Usuario incorrecto',
              403//no posee permisos
@@ -183,7 +163,99 @@ const login = async (req, res, next) => {
     });
 };
 
+const changePassword = async (req, res, next) => {
+    const { email } = req.body;
+
+    let existingUser;
+    try {
+        existingUser = await User.findOne({ email: email });
+    } catch (err) {
+        const error = new HttpError(
+            'No se encontró el correo', 
+            500
+        );
+        return next(error);
+    }
+
+    
+    let token;
+    try {
+        token = jwt.sign(
+            { 
+                userId: existingUser.id, 
+                email: existingUser.email 
+            },
+            process.env.JWT_KEY,
+            { expiresIn: '1h' }
+        );
+        existingUser.passwordToken = token;
+        await existingUser.save();
+
+    } catch (err) {
+        const error = new HttpError(
+            'Error en la autenticación',
+             500
+        );
+        return next(error);
+    }
+
+    await transport.sendMail({
+            from : '"Vortex-usuarios" <agustin.fassola98@gmail.com>',
+            to :'agustin.fassola98@gmail.com',
+            subject : 'Recupera tu contraseña',
+            text : 'Correo desde node.js '+
+            `http://localhost:5000/api/users/new-password/${token}`
+    });
+    res.status(200).json({ 
+        ok: true, message: "correo enviado con éxito!"
+    }); 
+
+};
+
+const newPassword = async (req, res, next) => {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    let existingUser;
+    try{
+        existingUser = await User.findOne({
+            passwordToken: token
+        });
+    } catch (err) {
+        const error = new HttpError(
+            'El token es inválido', 
+            400
+        );
+        return next(error);
+    }
+
+    if(!existingUser) {
+        const error = new HttpError(
+            'No se encontró al usuario', 
+            400);
+        return next(error);
+    }
+    try{
+        existingUser.password = await bcrypt.hash(password, 12);
+        existingUser.passwordToken = null;
+
+        await existingUser.save();
+
+    } catch (err) {
+        const error = new HttpError(
+            'Error al restablecer la contraseña', 
+            500
+        );
+        return next(error);
+    }
+    res.status(200).json({
+        message: 'Contraseña actualizada'
+    });
+};
+
 
 exports.getUsers = getUsers;
 exports.signup = signup;
 exports.login = login;
+exports.changePassword = changePassword;
+exports.newPassword = newPassword;

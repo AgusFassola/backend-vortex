@@ -21,7 +21,8 @@ const userSchema = new Schema({
         required: true,
         enum: ['admin', 'user'],//solo permite estos valores
         default: 'user'//por defecto es tipo user
-    }
+    },
+    passwordToken:{ type: String }
 },{
     timestamps: true
 });

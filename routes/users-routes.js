@@ -21,4 +21,11 @@ router.post(
 //para iniciar sesion
 router.post('/login', userController.login);
 
+//cambiar contraseña
+router.post('/change-password', userController.changePassword );
+
+//Nueva contraseña
+router.post('/new-password/:token', userController.newPassword );
+
+
 module.exports = router;
