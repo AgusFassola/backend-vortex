@@ -43,22 +43,39 @@ const createEmployee = async(req, res, next ) => {
 
 //Obtener los empleados
 const getEmployees = async (req, res, next) => {
+
+    const { position, name, email, page = 1, limit = 10 } = req.query;
+    let query = {};
+
+    if( position ) query.position = position;
+    if( name ) query.name = new RegExp( name, 'i');
+    if( email ) query.email = new RegExp( email, 'i');
+
+
     let employees;
     try{
-        employees = await Employee.find({});
+        employees = await Employee.find(query)
+            .skip((page -1) * limit)
+            .limit(parseInt(limit));
+
+        const total = await Employee.countDocuments(query);
+
+        res.json({ 
+            employees: employees.map( employee =>
+                 employee.toObject({ getters: true })
+            ),
+            totalPages: Math.ceil( total / limit ),
+            currentPage: parseInt(page),
+        });
     }catch(err){
         const error = new HttpError(
             'No se pudo recuperar los empleados',
             500
         )
-        console.log(err);
+        console.log("error:",err);
         return next(error);
     }
-    res.json({ 
-        employees: employees.map( employee =>
-             employee.toObject({ getters: true })
-        )
-    });
+    
 };
 
 //Actualizar datos del empleado
@@ -87,11 +104,11 @@ const updateEmployee = async (req, res, next) => {
             ));
        }
 
-       employee.name = name;
-       employee.email = email;
-       employee.position = position;
-       employee.salary = salary;
-       employee.address = address;
+       if(name) employee.name = name;
+       if(email) employee.email = email;
+       if(position) employee.position = position;
+       if(salary) employee.salary = salary;
+       if(address) employee.address = address;
 
 
        await employee.save();
@@ -111,6 +128,7 @@ const updateEmployee = async (req, res, next) => {
     })
 };
 
+//eliminar un empleado
 const deleteEmployee = async (req, res, next) => {
     const employeeId = req.params.empId;
 
@@ -137,7 +155,35 @@ const deleteEmployee = async (req, res, next) => {
     res.status(200).json({ message: 'Empleado eliminado' });
 };
 
+//mostrar detalles de un empleado
+const getEmployeeById = async (req, res, next) => {
+    const empId = req.params.empId;
+    let employee;
+    try{
+        employee = await Employee.findById(empId);
+        if(!employee){
+            const error = new HttpError(
+                'no coincide el id',
+                500
+            )
+            return next(error);
+        }
+    }catch(err){
+        const error = new HttpError(
+            'No se encontró al empleado',
+            500
+        )
+        console.log(err);
+        return next(error);
+    }
+    res.json({ 
+        employee: employee.toObject({ getters: true })
+    });
+};
+
+
 exports.createEmployee = createEmployee;
 exports.getEmployees = getEmployees;
 exports.updateEmployee = updateEmployee;
 exports.deleteEmployee = deleteEmployee;
+exports.getEmployeeById = getEmployeeById;

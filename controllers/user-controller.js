@@ -120,9 +120,10 @@ const updateUser = async (req, res, next) => {
             return next(error);
         }
 
-        existingUser.username = username;
-        existingUser.email = email;
-        existingUser.role = role;
+        //para actualizar unicamente los campos modificados
+        if(username) existingUser.username = username;
+        if(email) existingUser.email = email;
+        if(role) existingUser.role = role;
 
         await existingUser.save();
     } catch (err) {

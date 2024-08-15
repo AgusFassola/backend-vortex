@@ -7,9 +7,12 @@ const router = express.Router();
 //obtener todos los empleados
 router.get('/', employeeController.getEmployees);
 
+//obtener templeado por id
+router.get('/:empId', employeeController.getEmployeeById);
+
 //registrar un nuevo empleado
 router.post(
-    '/',
+    '/create',
     [
         check('name').not().isEmpty(),
         check('email').normalizeEmail().isEmail(),
@@ -24,11 +27,11 @@ router.post(
 router.patch(
     '/:empId',
     [
-        check('name').not().isEmpty(),
-        check('email').normalizeEmail().isEmail(),
-        check('position').not().isEmpty(),
-        check('salary').isFloat({ gt: 0 }),
-        check('address').not().isEmpty()
+        check('name').optional().not().isEmpty(),
+        check('email').optional().normalizeEmail().isEmail(),
+        check('position').optional().not().isEmpty(),
+        check('salary').optional().isFloat({ gt: 0 }),
+        check('address').optional().not().isEmpty()
     ],
     employeeController.updateEmployee
 );
