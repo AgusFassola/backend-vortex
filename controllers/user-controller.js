@@ -24,7 +24,7 @@ const getUsers = async (req, res, next) => {
 }
 
 //Registrar un nuevo usuario(solo puede admin)
-const signup = async (req, res, next) => {
+const createUser = async (req, res, next) => {
 
     const errors = validationResult(req);
 
@@ -94,6 +94,76 @@ const signup = async (req, res, next) => {
         email: createdUser.email
     });
 };
+
+//actualizar usuario
+const updateUser = async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const error = new HttpError(
+            'Datos ingresados incorrectos',
+             422
+        );
+        return next(error);
+    }
+
+    const { username, email, role } = req.body;
+    const userId = req.params.userId;
+
+    let existingUser;
+    try {
+        existingUser = await User.findById(userId);
+        if (!existingUser) {
+            const error = new HttpError(
+                'Usuario no encontrado',
+                 404
+            );
+            return next(error);
+        }
+
+        existingUser.username = username;
+        existingUser.email = email;
+        existingUser.role = role;
+
+        await existingUser.save();
+    } catch (err) {
+        const error = new HttpError(
+            'Error al actualizar el usuario.',
+            500
+        );
+        return next(error);    }
+
+    res.status(200).json({ 
+        user: existingUser.toObject({ getters: true }) 
+    });
+};
+
+//eliminar usuario
+const deleteUser = async (req, res, next) => {
+    const userId = req.params.userId;
+
+    let existingUser;
+
+    try{
+        existingUser = await User.findById(userId);
+        if(!existingUser){
+            return next(new HttpError(
+                'Usuario no encontrado',
+                404//not-found
+            ));
+        }
+        await existingUser.deleteOne();
+    }catch(err){
+        const error = new HttpError(
+            'Error al eliminar el usuario',
+            500
+        )
+        console.log(err);
+        return next(error);
+    }
+    //200 solicitud con exito
+    res.status(200).json({ message: 'Usuario eliminado' });
+};
+
 
 // Iniciar sesión
 const login = async (req, res, next) => {
@@ -255,7 +325,9 @@ const newPassword = async (req, res, next) => {
 
 
 exports.getUsers = getUsers;
-exports.signup = signup;
+exports.createUser = createUser;
+exports.updateUser = updateUser;
+exports.deleteUser = deleteUser;
 exports.login = login;
 exports.changePassword = changePassword;
 exports.newPassword = newPassword;
