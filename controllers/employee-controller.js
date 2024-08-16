@@ -16,12 +16,12 @@ const createEmployee = async(req, res, next ) => {
 
     const { name, email, position, salary, address } = req.body;
 
-    console.log("puesto: ",position)
     // Verificar que el puesto exista
     let existingPosition;
     try {
-        existingPosition = await Position.findById(position);
+        existingPosition = await Position.findOne({ title: position });        
         if (!existingPosition) {
+        
             const error = new HttpError(
                 'El puesto asignado no existe.',
                 404
@@ -39,7 +39,7 @@ const createEmployee = async(req, res, next ) => {
     const createdEmployee = new Employee({
         name, 
         email,
-        position,
+        position: existingPosition._id,
         salary,
         address
     });
@@ -51,7 +51,6 @@ const createEmployee = async(req, res, next ) => {
             'Error al crear el empleado',
             500
         )
-        console.log(err);
         return next(error);
     }
     //201 solicitud con exito
@@ -68,12 +67,16 @@ const getEmployees = async (req, res, next) => {
     const { position, name, email, page = 1, limit = 10 } = req.query;
     let query = {};
 
-    if( position ) query.position = position;
+    if (position) {
+        const existingPosition = await Position.findOne({ title: position });
+        if (!existingPosition) {
+            return res.status(404).json({ message: 'Puesto no encontrado.' });
+        }
+        query.position = existingPosition._id; // Usa el ObjectId del puesto
+    }
     if( name ) query.name = new RegExp( name, 'i');
     if( email ) query.email = new RegExp( email, 'i');
 
-    console.log("puesto",position)
-    console.log("query:", query)
     let employees;
     try{
         employees = await Employee.find(query)
@@ -114,11 +117,11 @@ const updateEmployee = async (req, res, next) => {
     const { name, email, position, salary, address } = req.body;
     const employeeId = req.params.empId;
 
-    // Verificar que el puesto exista
+    let positionId = null;
+    // Verificar que el puesto exista y obtener su ObjectId
     if (position) {
-        let existingPosition;
         try {
-            existingPosition = await Position.findById(position);
+            const existingPosition = await Position.findOne({ title: position });
             if (!existingPosition) {
                 const error = new HttpError(
                     'El puesto asignado no existe.',
@@ -126,6 +129,7 @@ const updateEmployee = async (req, res, next) => {
                 );
                 return next(error);
             }
+            positionId = existingPosition._id; // Obtener el ObjectId del puesto
         } catch (err) {
             const error = new HttpError(
                 'No se pudo verificar el puesto.',
@@ -134,7 +138,6 @@ const updateEmployee = async (req, res, next) => {
             return next(error);
         }
     }
-
 
     let employee;
 
