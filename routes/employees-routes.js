@@ -1,14 +1,14 @@
 const express = require('express');
 const { check } = require('express-validator');
 const employeeController = require('../controllers/employee-controller');
-
+const authUser = require('../middleware/auth-user');
 const router = express.Router();
 
 //obtener todos los empleados
-router.get('/', employeeController.getEmployees);
+router.get('/', authUser,employeeController.getEmployees);
 
 //obtener templeado por id
-router.get('/:empId', employeeController.getEmployeeById);
+router.get('/:empId', authUser, employeeController.getEmployeeById);
 
 //registrar un nuevo empleado
 router.post(
@@ -20,7 +20,7 @@ router.post(
         check('salary').isFloat({ gt: 0 }),
         check('address').not().isEmpty()
     ],
-    employeeController.createEmployee
+    authUser, employeeController.createEmployee
 );
 
 //actualizar un empleado
@@ -33,10 +33,10 @@ router.patch(
         check('salary').optional().isFloat({ gt: 0 }),
         check('address').optional().not().isEmpty()
     ],
-    employeeController.updateEmployee
+    authUser, employeeController.updateEmployee
 );
 
 //eliminar un empleado
-router.delete( '/:empId', employeeController.deleteEmployee );
+router.delete( '/:empId',authUser, employeeController.deleteEmployee );
 
 module.exports = router;

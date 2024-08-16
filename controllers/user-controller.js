@@ -8,9 +8,14 @@ const transport = require('../helpers/mailer');
 
 //para obtener todos los usuarios(solo puede el admin)
 const getUsers = async (req, res, next) => {
+    const { page = 1, limit = 3 } = req.query;
+    
     let users;
     try{
-        users = await User.find({}, '-password');
+        users = await User.find({}, '-password')
+        .skip(( page - 1) * limit)
+        .limit(Number( limit ));
+
     }catch(err){
         const error = new HttpError(
             'Error al obtener el usuario',
@@ -20,7 +25,10 @@ const getUsers = async (req, res, next) => {
     }
     res.json({ users: users.map( user => 
         user.toObject({ getters:true})
-    )});
+        ),
+        currentPage: Number(page),
+        totalUsers: users.length
+    });
 }
 
 //Registrar un nuevo usuario(solo puede admin)
@@ -107,8 +115,9 @@ const updateUser = async (req, res, next) => {
     }
 
     const { username, email, role } = req.body;
-    const userId = req.params.userId;
+    const userId = req.params.uid;
 
+    console.log("params:",req.params,"userid:", req.params.userId)
     let existingUser;
     try {
         existingUser = await User.findById(userId);
@@ -140,7 +149,7 @@ const updateUser = async (req, res, next) => {
 
 //eliminar usuario
 const deleteUser = async (req, res, next) => {
-    const userId = req.params.userId;
+    const userId = req.params.uid;
 
     let existingUser;
 

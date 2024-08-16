@@ -11,10 +11,10 @@ const authUser = async (req, res, next) => {
     return next(error);
   }
 
-  const token = req.headers.authorization.split("")[1];
+  const token = req.headers.authorization.split(" ")[1];
   if (!token) {
     const error = new HttpError(
-      "Error al autenticar",
+      "no se obtuvo el token",
       401 //no está autorizado
     );
     return next(error);
@@ -35,13 +35,16 @@ const authUser = async (req, res, next) => {
   try {
     existingUser = await User.findById(loginToken.userId);
   } catch (err) {
-    const error = new HttpError("falta el token de autenticación", 500);
+    const error = new HttpError(
+      "token no coincide con un usuario",
+       500
+      );
     return next(error);
   }
 
   if (!existingUser) {
     const error = new HttpError(
-      "No se encontró el usuario",
+      "No se encontró el usuario con ese token",
       401 //no está autorizado
     );
     return next(error);

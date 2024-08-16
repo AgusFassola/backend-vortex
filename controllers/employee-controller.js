@@ -1,6 +1,7 @@
 const { validationResult } = require('express-validator');
 const Employee = require('../models/employee');
 const HttpError = require('../models/http-error');
+const Position = require('../models/position');
 
 //Agregar un empleado
 const createEmployee = async(req, res, next ) => {
@@ -89,7 +90,7 @@ const updateEmployee = async (req, res, next) => {
         ));
     }
 
-    const { name, email, position, salary, address } = req.body;
+    const { name, email, positionId, salary, address } = req.body;
     const employeeId = req.params.empId;
 
     let employee;
@@ -106,7 +107,16 @@ const updateEmployee = async (req, res, next) => {
 
        if(name) employee.name = name;
        if(email) employee.email = email;
-       if(position) employee.position = position;
+       if(positionId){
+            const position = await Position.findById(positionId)
+            if(!position){
+                return next(new HttpError(
+                    'Empleado no encontrado',
+                    404//not-found
+                ));
+            }
+            employee.position = positionId;
+       } 
        if(salary) employee.salary = salary;
        if(address) employee.address = address;
 
