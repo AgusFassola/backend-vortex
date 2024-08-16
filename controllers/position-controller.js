@@ -35,7 +35,9 @@ const createPosition = async (req, res, next) => {
     console.log("rol", createdPosition)
     try{
         await createdPosition.save();
+
         console.log("creado", createdPosition);
+
         res.status(201).json({ position: 
             createdPosition.toObject({ getters:true })
         });
@@ -59,7 +61,14 @@ const getPosition = async (req, res, next) => {
         positions = await Position.find()
         .skip(( page - 1) * limit)
         .limit(Number( limit ));
+        const total = await Position.countDocuments();
 
+        res.json({ positions: positions.map(
+            position => position.toObject({ getters:true })
+            ),
+            currentPage: Number(page),
+            totalPages: Math.ceil( total / limit )
+        });
     }catch(err){
         const error = new HttpError(
             'No se encontraron los puestos',
@@ -67,12 +76,7 @@ const getPosition = async (req, res, next) => {
         )
         return next(error);
     }
-    res.json({ positions: positions.map(
-        position => position.toObject({ getters:true })
-        ),
-        currentPage: Number(page),
-        totalPositions: positions.length
-    });
+    
 };
 
 //eliminar puestos

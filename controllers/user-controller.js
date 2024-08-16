@@ -16,6 +16,14 @@ const getUsers = async (req, res, next) => {
         .skip(( page - 1) * limit)
         .limit(Number( limit ));
 
+        const total = await User.countDocuments();
+
+        res.json({ users: users.map( user => 
+            user.toObject({ getters:true})
+            ),
+            currentPage: Number(page),
+            totalPages:  Math.ceil( total / limit )
+        });
     }catch(err){
         const error = new HttpError(
             'Error al obtener el usuario',
@@ -23,12 +31,7 @@ const getUsers = async (req, res, next) => {
         );
         return next(error)
     }
-    res.json({ users: users.map( user => 
-        user.toObject({ getters:true})
-        ),
-        currentPage: Number(page),
-        totalUsers: users.length
-    });
+    
 }
 
 //Registrar un nuevo usuario(solo puede admin)

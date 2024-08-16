@@ -16,6 +16,26 @@ const createEmployee = async(req, res, next ) => {
 
     const { name, email, position, salary, address } = req.body;
 
+    console.log("puesto: ",position)
+    // Verificar que el puesto exista
+    let existingPosition;
+    try {
+        existingPosition = await Position.findById(position);
+        if (!existingPosition) {
+            const error = new HttpError(
+                'El puesto asignado no existe.',
+                404
+            );
+            return next(error);
+        }
+    } catch (err) {
+        const error = new HttpError(
+            'No se pudo verificar el puesto.',
+            500
+        );
+        return next(error);
+    }
+    
     const createdEmployee = new Employee({
         name, 
         email,
@@ -52,7 +72,8 @@ const getEmployees = async (req, res, next) => {
     if( name ) query.name = new RegExp( name, 'i');
     if( email ) query.email = new RegExp( email, 'i');
 
-
+    console.log("puesto",position)
+    console.log("query:", query)
     let employees;
     try{
         employees = await Employee.find(query)
@@ -90,8 +111,30 @@ const updateEmployee = async (req, res, next) => {
         ));
     }
 
-    const { name, email, positionId, salary, address } = req.body;
+    const { name, email, position, salary, address } = req.body;
     const employeeId = req.params.empId;
+
+    // Verificar que el puesto exista
+    if (position) {
+        let existingPosition;
+        try {
+            existingPosition = await Position.findById(position);
+            if (!existingPosition) {
+                const error = new HttpError(
+                    'El puesto asignado no existe.',
+                    404
+                );
+                return next(error);
+            }
+        } catch (err) {
+            const error = new HttpError(
+                'No se pudo verificar el puesto.',
+                500
+            );
+            return next(error);
+        }
+    }
+
 
     let employee;
 
@@ -107,16 +150,7 @@ const updateEmployee = async (req, res, next) => {
 
        if(name) employee.name = name;
        if(email) employee.email = email;
-       if(positionId){
-            const position = await Position.findById(positionId)
-            if(!position){
-                return next(new HttpError(
-                    'Empleado no encontrado',
-                    404//not-found
-                ));
-            }
-            employee.position = positionId;
-       } 
+       if(positionId) employee.position = positionId;
        if(salary) employee.salary = salary;
        if(address) employee.address = address;
 

@@ -12,6 +12,7 @@ const employeeSchema = new Schema({
         unique:true,
     },
     position:{
+        //type: String,
         type: Schema.Types.ObjectId,
         ref:'Position',
         required: true,
