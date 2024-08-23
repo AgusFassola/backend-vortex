@@ -80,12 +80,19 @@ const getEmployees = async (req, res, next) => {
     let employees;
     try{
         employees = await Employee.find(query)
+            .populate('position','title')//para obtener el titulo en vez del id
             .skip((page -1) * limit)
             .limit(parseInt(limit));
 
         const total = await Employee.countDocuments(query);
 
         res.json({ 
+
+            /* employees: employees.map( employee =>{
+                const employeeObj = employee.toObject({ getters: true });
+            employeeObj.position = employeeObj.position.title;
+            return employeeObj;}),
+ */
             employees: employees.map( employee =>
                  employee.toObject({ getters: true })
             ),

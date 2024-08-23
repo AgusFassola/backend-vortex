@@ -5,13 +5,11 @@ const usersRoutes = require('./routes/users-routes');
 const employeesRoutes = require('./routes/employees-routes');
 const positionsRoutes = require('./routes/position-routes');
 
-const fs = require('fs');
-const path = require('path');
 const HttpError = require('./models/http-error');
 
-const app = express();
+const app = express();//apis-rutas
 
-app.use(bodyParser.json());
+app.use(bodyParser.json());//convierte solicitudes json a un objeto javascript accesible con req.body
 
 app.use('/api/users', usersRoutes );
 app.use('/api/employees', employeesRoutes );
@@ -19,7 +17,7 @@ app.use('/api/positions', positionsRoutes );
 
 
 //Error para rutas no encontradas
-app.use((req, res, next) => {
+app.use((req, res, next) => { //sin ruta especifica aplica a todas las rutas
     const error = new HttpError(
         'No se encontró la ruta',
         404//not found
@@ -29,7 +27,7 @@ app.use((req, res, next) => {
 
 //Errores generales
 app.use((error, req, res, next) => {
-    if( req.headerSent ){
+    if( req.headerSent ){ //para verificar si ya se envió una cabecera
         return next(error);
     }
     res.status( error.code || 500 );

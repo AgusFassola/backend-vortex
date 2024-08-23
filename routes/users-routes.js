@@ -28,8 +28,7 @@ router.patch(
     '/:uid',
     [
         check('username').optional().not().isEmpty(),
-        check('email').optional().normalizeEmail().isEmail(),
-        check('role').optional().isIn(['admin','user'])
+        check('email').optional().normalizeEmail().isEmail()
     ],
     authUser, checkAdmin, userController.updateUser
 );

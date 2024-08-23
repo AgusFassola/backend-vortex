@@ -4,7 +4,6 @@ const Position = require('../models/position');
 //crear puestos
 const createPosition = async (req, res, next) => {
     const { title } = req.body;
-    console.log("titulo: ",title)
 
     if (!title) {
         const error = new HttpError(
@@ -24,7 +23,6 @@ const createPosition = async (req, res, next) => {
             return next(error);
         }
     } catch (err) {
-        console.log("error:", err);
         return next(new HttpError(
             'Error al verificar el rol',
              500
@@ -32,17 +30,13 @@ const createPosition = async (req, res, next) => {
     }
 
     const createdPosition = new Position({ title });
-    console.log("rol", createdPosition)
     try{
         await createdPosition.save();
-
-        console.log("creado", createdPosition);
 
         res.status(201).json({ position: 
             createdPosition.toObject({ getters:true })
         });
     }catch(err){
-        console.log("error:",err)
         const error = new HttpError(
             'Error al crear el puesto',
             500

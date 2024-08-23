@@ -17,7 +17,7 @@ router.post(
         check('name').not().isEmpty(),
         check('email').normalizeEmail().isEmail(),
         check('position').not().isEmpty(),
-        check('salary').isFloat({ gt: 0 }),
+        check('salary').isFloat({ gt: 0 }),//mayor que cero
         check('address').not().isEmpty()
     ],
     authUser, employeeController.createEmployee
@@ -30,7 +30,7 @@ router.patch(
         check('name').optional().not().isEmpty(),
         check('email').optional().normalizeEmail().isEmail(),
         check('position').optional().not().isEmpty(),
-        check('salary').optional().isFloat({ gt: 0 }),
+        check('salary').optional().isFloat({ gt: 0 }),//mayor que cero
         check('address').optional().not().isEmpty()
     ],
     authUser, employeeController.updateEmployee

@@ -22,7 +22,7 @@ const getUsers = async (req, res, next) => {
             user.toObject({ getters:true})
             ),
             currentPage: Number(page),
-            totalPages:  Math.ceil( total / limit )
+            totalPages:  Math.ceil( total / limit )//ceil redondea para arriba
         });
     }catch(err){
         const error = new HttpError(
@@ -51,13 +51,12 @@ const createUser = async (req, res, next) => {
     let existingUser;
 
     try{
-        existingUser = await User.findOne({ email:email });
+        existingUser = await User.findOne({ email:email });//({email})
     }catch(err){
         const error = new HttpError(
             'Falló el registro',
             500//Internal server error
         )
-        console.log(err);
         return next(error);
     }
 
@@ -78,7 +77,6 @@ const createUser = async (req, res, next) => {
             'Error al crear el usuario',
             500//Internal server error
         )
-        console.log(err);
         return next(error);
     }
 
@@ -95,7 +93,6 @@ const createUser = async (req, res, next) => {
             'Error al registrar el usuario',
             500//Internal server error
         )
-        console.log(err);
         return next(error);
     }
 
@@ -120,7 +117,6 @@ const updateUser = async (req, res, next) => {
     const { username, email, role } = req.body;
     const userId = req.params.uid;
 
-    console.log("params:",req.params,"userid:", req.params.userId)
     let existingUser;
     try {
         existingUser = await User.findById(userId);
@@ -284,7 +280,7 @@ const changePassword = async (req, res, next) => {
 
     await transport.sendMail({
             from : '"Vortex-usuarios" <agustin.fassola98@gmail.com>',
-            to :'agustin.fassola98@gmail.com',
+            to :`${email}`,
             subject : 'Recupera tu contraseña',
             text : 'Correo desde node.js '+
             `http://localhost:5000/api/users/new-password/${token}`
