@@ -8,7 +8,7 @@ const transport = require('../helpers/mailer');
 
 //para obtener todos los usuarios(solo puede el admin)
 const getUsers = async (req, res, next) => {
-    const { page = 1, limit = 3 } = req.query;
+    const { page = 1, limit = 10 } = req.query;
     
     let users;
     try{
@@ -49,6 +49,7 @@ const createUser = async (req, res, next) => {
 
     const { username, email, password, role } = req.body;
     let existingUser;
+    console.log("llegó usuario:", req.body)
 
     try{
         existingUser = await User.findOne({ email:email });//({email})

@@ -9,7 +9,7 @@ const router = express.Router();
 //obtener todos los usuarios(solo admin)
 router.get(
     '/',
-    authUser, checkAdmin, userController.getUsers
+     userController.getUsers
 );
 
 //registrar un nuevo usuario(solo admin)
@@ -20,7 +20,7 @@ router.post(
         check('email').normalizeEmail().isEmail(),
         check('password').isLength({ min: 3 })
     ],
-     authUser, checkAdmin, userController.createUser
+      userController.createUser
 );
 
 //actualizar usuario
@@ -30,13 +30,13 @@ router.patch(
         check('username').optional().not().isEmpty(),
         check('email').optional().normalizeEmail().isEmail()
     ],
-    authUser, checkAdmin, userController.updateUser
+     userController.updateUser
 );
 
 //eliminar usuario
 router.delete(
     '/:uid',
-    authUser, checkAdmin, userController.deleteUser
+     userController.deleteUser
 );
 
 

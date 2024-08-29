@@ -64,7 +64,7 @@ const createEmployee = async(req, res, next ) => {
 //Obtener los empleados
 const getEmployees = async (req, res, next) => {
 
-    const { position, name, email, page = 1, limit = 10 } = req.query;
+    const { position, name, email, page = 1, limit = 20 } = req.query;
     let query = {};
 
     if (position) {
@@ -112,7 +112,7 @@ const getEmployees = async (req, res, next) => {
 
 //Actualizar datos del empleado
 const updateEmployee = async (req, res, next) => {
-
+console.log("entro al servicio")
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return next(new HttpError(
@@ -120,9 +120,13 @@ const updateEmployee = async (req, res, next) => {
              422//errores de semántica
         ));
     }
+    console.log("paso al servicio")
 
     const { name, email, position, salary, address } = req.body;
     const employeeId = req.params.empId;
+    console.log("empleado id:",employeeId);
+    console.log("body:", req.body);
+
 
     let positionId = null;
     // Verificar que el puesto exista y obtener su ObjectId
@@ -138,6 +142,7 @@ const updateEmployee = async (req, res, next) => {
             }
             positionId = existingPosition._id; // Obtener el ObjectId del puesto
         } catch (err) {
+            console.log("error1:",err)
             const error = new HttpError(
                 'No se pudo verificar el puesto.',
                 500
@@ -167,6 +172,8 @@ const updateEmployee = async (req, res, next) => {
 
        await employee.save();
     }catch(err){
+        console.log("error2:",err)
+
         const error = new HttpError(
             'Error al actualizar el empleado',
             500
@@ -176,9 +183,7 @@ const updateEmployee = async (req, res, next) => {
     }
     //200 solicitud con exito
     res.status(200).json({
-        employee: employee.toObject({
-            getters: true
-        })
+        employee: employee.toObject({ getters: true })
     })
 };
 
@@ -214,11 +219,12 @@ const getEmployeeById = async (req, res, next) => {
     const empId = req.params.empId;
     let employee;
     try{
-        employee = await Employee.findById(empId);
+        employee = await Employee.findById(empId)
+        .populate('position','title');
         if(!employee){
             const error = new HttpError(
                 'no coincide el id',
-                500
+                404
             )
             return next(error);
         }

@@ -7,7 +7,10 @@ const positionsRoutes = require('./routes/position-routes');
 
 const HttpError = require('./models/http-error');
 
+const cors = require('cors');
 const app = express();//apis-rutas
+
+app.use(cors({ origin:'http://localhost:3000' }));
 
 app.use(bodyParser.json());//convierte solicitudes json a un objeto javascript accesible con req.body
 
