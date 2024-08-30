@@ -222,6 +222,7 @@ const login = async (req, res, next) => {
     try {
         token = jwt.sign(
             { 
+                role: existingUser.role,
                 userId: existingUser.id, 
                 email: existingUser.email 
             },

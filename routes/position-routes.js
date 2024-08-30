@@ -5,7 +5,7 @@ const authUser  = require('../middleware/auth-user');
 const router = express.Router();
 
 //obtener todos los puestos
-router.get('/',authUser, positionController.getPosition );
+router.get('/', positionController.getPosition );
 
 //registrar un nuevo empleado
 router.post(
@@ -13,12 +13,12 @@ router.post(
     [
         check('title').not().isEmpty()
     ],
-    authUser, positionController.createPosition );
+     positionController.createPosition );
 
 
 
 //eliminar un puesto
 router.delete( '/:posId', 
-    authUser, positionController.deletePosition );
+     positionController.deletePosition );
 
 module.exports = router;

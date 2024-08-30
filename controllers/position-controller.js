@@ -48,7 +48,7 @@ const createPosition = async (req, res, next) => {
 
 //obtener puestos
 const getPosition = async (req, res, next) => {
-    const { page = 1, limit = 3 } = req.query;
+    const { page = 1, limit = 10 } = req.query;
 
     let positions;
     try{
