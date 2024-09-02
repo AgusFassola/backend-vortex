@@ -285,7 +285,7 @@ const changePassword = async (req, res, next) => {
             to :`${email}`,
             subject : 'Recupera tu contraseña',
             text : 'Correo desde node.js '+
-            `http://localhost:5000/api/users/new-password/${token}`
+            `http://localhost:3000/users/new-password/${token}`
     });
     res.status(200).json({ 
         ok: true, message: "correo enviado con éxito!"
